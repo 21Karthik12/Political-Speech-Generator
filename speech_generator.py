@@ -13,6 +13,23 @@ class SpeechGenerator:
         prompt += "\n\nSpeech:\n"
         prompt += speech
         return self.querier.query(prompt)
+    
+    def append_web_scraped_data(self, speech):
+      with open("web_scraped_data.txt", "r") as file:
+          web_scraped_data = file.read()
+
+      prompt = """You have been provided with some web-scraped data and a base speech. 
+      Your task is to include the web-scraped data into the base speech in such a way that the flow of the speech remains smooth and natural.
+      Ensure that the data is integrated seamlessly, enhancing the speech without disrupting its structure.
+      
+      Base Speech:
+      """
+      prompt += speech
+      prompt += "\n\nWeb-Scraped Data:\n"
+      prompt += web_scraped_data
+
+      return self.querier.query(prompt)
+
 
     def get_metrics(self, speech):
         prompt = """You need to assess the following 5 personality traits from the below speech by giving it a score of 1 to 10 (discrete values) where 10 is the highest score and 1 is the lowest score (use floor value):
@@ -56,7 +73,10 @@ Then, regenerate the speech by improving those metrics and make it sound more hu
         base_speech = self.generate_base_speech(speech, requirements)
 
 
-        personality_improved_speech = self.get_metrics(base_speech)
+        web_scraped_data_integrated_speech = self.append_web_scraped_data(base_speech)
+
+
+        personality_improved_speech = self.get_metrics(web_scraped_data_integrated_speech)
 
 
         eq_improved_speech = self.enhance_eq_score(personality_improved_speech)
